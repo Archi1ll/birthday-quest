@@ -1,0 +1,1422 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-select=no">
+    <title>🎂 Святковий Інтерактивний Квест! 💖</title>
+    <style>
+        :root {
+            --primary: #4a90e2;
+            --accent: #ff4081;
+            --bg-gradient: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            --card-bg: #ffffff;
+            --text-color: #333333;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: var(--text-color);
+            padding: 12px;
+            overflow-x: hidden;
+        }
+
+        #quest-container {
+            width: 100%;
+            max-width: 500px;
+            background: var(--card-bg);
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            padding: 20px;
+            text-align: center;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Контейнер для прогресу та кнопки скидання */
+        .header-status-box {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            border-bottom: 2px dashed #f1f2f6;
+            padding-bottom: 10px;
+        }
+
+        #progress-bar {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: var(--primary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-reset-progress {
+            background: #ff4757;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            border-radius: 12px;
+            cursor: pointer;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin: 0;
+            transition: background 0.2s;
+        }
+
+        .btn-reset-progress:active {
+            background: #c0392b;
+        }
+
+        .level-panel {
+            display: none;
+            animation: fadeIn 0.4s ease;
+        }
+
+        .level-panel.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        h2 {
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 1.4rem;
+        }
+
+        p {
+            margin-bottom: 15px;
+            line-height: 1.4;
+            color: #555;
+            font-size: 0.95rem;
+        }
+
+        input[type="text"], input[type="number"] {
+            width: 85%;
+            padding: 14px 20px;
+            margin: 10px 0;
+            border: 2px solid #ddd;
+            border-radius: 25px;
+            font-size: 1.1rem;
+            text-align: center;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        input[type="text"]:focus, input[type="number"]:focus {
+            border-color: var(--primary);
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            font-size: 1.05rem;
+            font-weight: bold;
+            border-radius: 25px;
+            cursor: pointer;
+            margin: 8px 4px;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            user-select: none;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        button.btn-accent {
+            background: var(--accent);
+        }
+
+        .hint-text {
+            color: #7f8c8d;
+            font-style: italic;
+            margin-top: 10px;
+            min-height: 20px;
+            font-size: 0.9rem;
+        }
+
+        /* Рівень 2: Simon Says мобільна сітка */
+        .simon-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+            max-width: 220px;
+            margin: 15px auto;
+        }
+        .simon-btn {
+            width: 100px;
+            height: 100px;
+            border-radius: 15px;
+            cursor: pointer;
+            opacity: 0.6;
+            transition: opacity 0.2s;
+            border: 3px solid #fff;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        #simon-red { background: #ff4757; }
+        #simon-blue { background: #1e90ff; }
+        #simon-green { background: #2ed573; }
+        #simon-yellow { background: #ffa502; }
+
+        /* Рівень 3: Tic Tac Toe */
+        .ttt-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            max-width: 220px;
+            margin: 15px auto;
+        }
+        .ttt-cell {
+            width: 68px;
+            height: 68px;
+            background: #f1f2f6;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        /* Рівень 4: Catch Cake */
+        .cake-field {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            max-width: 260px;
+            margin: 15px auto;
+        }
+        .cake-hole {
+            height: 70px;
+            background: #dfe4ea;
+            border-radius: 50%;
+            position: relative;
+            overflow: hidden;
+            border-bottom: 4px solid #ced6e0;
+        }
+        .cake-actor {
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 2rem;
+            cursor: pointer;
+            transition: top 0.1s ease;
+            user-select: none;
+        }
+        .cake-actor.up { top: 12px; }
+
+        /* Рівень 5: Balloons */
+        .balloon-sky {
+            height: 220px;
+            background: #e8f4f8;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 2px dashed #95afc0;
+        }
+        .sky-balloon {
+            position: absolute;
+            font-size: 2.3rem;
+            cursor: pointer;
+            user-select: none;
+            bottom: -50px;
+            animation: floatUp 3.8s linear infinite;
+        }
+        @keyframes floatUp {
+            0% { bottom: -50px; opacity: 1; }
+            100% { bottom: 230px; opacity: 0; }
+        }
+
+        /* Рівень 6: Лови подарунки адаптивний */
+        .catch-area {
+            height: 200px;
+            background: #f1f2f6;
+            border-radius: 15px;
+            position: relative;
+            overflow: hidden;
+            border: 2px solid #ddd;
+            margin-bottom: 10px;
+        }
+        #basket {
+            position: absolute;
+            bottom: 8px;
+            left: 50%;
+            width: 65px;
+            height: 14px;
+            background: #1e90ff;
+            border-radius: 5px;
+            transform: translateX(-50%);
+            transition: left 0.08s linear;
+        }
+        .falling-gift {
+            position: absolute;
+            width: 18px;
+            height: 18px;
+            background: #ff4081;
+            border-radius: 4px;
+            top: -20px;
+        }
+        .catch-controls {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            margin-top: 10px;
+        }
+        .catch-controls button {
+            flex: 1;
+            padding: 15px;
+        }
+
+        /* Рівень 7: Мобільна сітка карток пам'яті */
+        .memory-grid {
+            display: grid;
+            grid-template-columns: repeat(4, minmax(50px, 1fr));
+            gap: 8px;
+            max-width: 300px;
+            margin: 15px auto;
+        }
+        .mem-card {
+            aspect-ratio: 1 / 1;
+            background: #2c3e50;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.6rem;
+            color: transparent;
+            cursor: pointer;
+            user-select: none;
+            transition: background 0.2s, color 0.2s;
+        }
+        .mem-card.flipped {
+            background: #f1f2f6;
+            color: #000;
+        }
+        .mem-card.matched {
+            background: #2ecc71;
+            color: #fff;
+            cursor: default;
+        }
+
+        /* Рівень 8: Мобільний Лабіринт та Керування */
+        .maze-container {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 4px;
+            max-width: 180px;
+            margin: 15px auto;
+            background: #ccc;
+            padding: 4px;
+            border-radius: 8px;
+        }
+        .maze-cell {
+            aspect-ratio: 1 / 1;
+            background: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .maze-wall { background: #34495e; }
+        .maze-player { background: #2ecc71; border-radius: 50%; }
+        .maze-target { background: #9b59b6; }
+        
+        /* Мобільний D-Pad контролер */
+        .dpad-container {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+            gap: 5px;
+            width: 140px;
+            height: 140px;
+            margin: 10px auto 0 auto;
+        }
+        .dpad-btn {
+            background: #718093;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            box-shadow: 0 3px 5px rgba(0,0,0,0.2);
+        }
+        .dpad-btn:active { background: #2f3542; }
+
+        /* Рівень 9: Word builder */
+        .letters-pool {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin: 15px 0;
+        }
+        .letter-tile {
+            padding: 12px 16px;
+            background: #f1f2f6;
+            border: 2px solid #cbd2d9;
+            border-radius: 8px;
+            font-size: 1.2rem;
+            font-weight: bold;
+            cursor: pointer;
+            user-select: none;
+        }
+        .letter-tile.used {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* Вікторини */
+        .quiz-option {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #f8f9fa;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            margin: 8px 0;
+            text-align: left;
+            cursor: pointer;
+            font-size: 0.95rem;
+        }
+
+        .pump-balloon {
+            width: 55px;
+            height: 55px;
+            background: #ff6b6b;
+            border-radius: 50%;
+            margin: 25px auto;
+            transition: width 0.1s, height 0.1s;
+        }
+
+        .click-target {
+            width: 95px;
+            height: 95px;
+            background: #5f27cd;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            margin: 25px auto;
+            cursor: pointer;
+            font-weight: bold;
+            user-select: none;
+            font-size: 1rem;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .math-legend {
+            background: #f1f2f6;
+            padding: 10px;
+            border-radius: 10px;
+            margin: 12px auto;
+            max-width: 260px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border: 1px dashed #cbd2d9;
+        }
+
+        /* Стилі для Рівнів 15-18: Тіні та строго ЧОРНИЙ шрифт кнопок */
+        .animal-shadow-container {
+            width: 110px;
+            height: 110px;
+            margin: 12px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .animal-shadow-container svg {
+            width: 100%;
+            height: 100%;
+            fill: #000000;
+        }
+        .shadow-option {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            background: #f8f9fa;
+            border: 2px solid #ccc;
+            border-radius: 12px;
+            margin: 10px 0;
+            text-align: left;
+            cursor: pointer;
+            font-size: 1.05rem;
+            font-weight: bold;
+            color: #000000 !important;
+        }
+
+        /* Рівень 19 Конфеті Екран */
+        .congrats-card {
+            padding: 5px;
+        }
+        .congrats-text {
+            font-size: 1rem;
+            line-height: 1.5;
+            color: #2c3e50;
+            margin-bottom: 20px;
+            text-align: justify;
+        }
+        #canvas-confetti {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            pointer-events: none;
+            z-index: 999;
+            display: none;
+        }
+
+        /* Рівень 20 - Фінальний Сейф */
+        .safe-inputs-container {
+            display: flex !important;
+            flex-direction: row !important;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            width: 100%;
+            margin: 12px 0;
+        }
+        .safe-inputs-container input {
+            flex: 1;
+            min-width: 0;
+            max-width: 180px;
+            padding: 12px 8px;
+            border: 2px solid #b2bec3;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            text-align: center;
+            outline: none;
+            margin: 0 !important;
+        }
+        .safe-graphic-box {
+            position: relative;
+            width: 100%;
+            height: 180px;
+            background: #dfe4ea;
+            border-radius: 15px;
+            border: 3px solid #a4b0be;
+            margin-top: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.2);
+        }
+        .safe-door {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #718093;
+            border: 6px double #2f3542;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #f5f6fa;
+            font-size: 1.3rem;
+            font-weight: bold;
+            transition: transform 1.2s cubic-bezier(0.77, 0, 0.175, 1);
+            z-index: 10;
+        }
+        .safe-door.open {
+            transform: translateX(-102%);
+        }
+        .safe-inside-data {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #2f3542;
+            background: #ffffff;
+            padding: 12px 24px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            z-index: 1;
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="canvas-confetti"></canvas>
+
+    <div id="quest-container">
+        <div class="header-status-box">
+            <div id="progress-bar">Рівень 1 з 20</div>
+            <button class="btn-reset-progress" onclick="resetEntireQuest()">🔄 Почати заново</button>
+        </div>
+
+        <div id="level-1" class="level-panel active">
+            <h2>Рівень 1: Кодовий Сейф 🔒</h2>
+            <p>Введіть правильний пароль для відкриття початкового замка:</p>
+            <input type="text" id="input-l1" placeholder="ХХ,ХХ">
+            <br>
+            <button onclick="checkLevel1()">Перевірити</button>
+            <button class="btn-accent" onclick="showHint(1)">Підказка</button>
+            <p class="hint-text" id="hint-1"></p>
+        </div>
+
+        <div id="level-2" class="level-panel">
+            <h2>Рівень 2: Саймон каже (Simon Says) 🟦</h2>
+            <p>Повторіть випадкову послідовність кольорових спалахів!</p>
+            <button onclick="startSimon()">Старт гри</button>
+            <div class="simon-grid">
+                <div class="simon-btn" id="simon-red" onclick="clickSimon(0)"></div>
+                <div class="simon-btn" id="simon-blue" onclick="clickSimon(1)"></div>
+                <div class="simon-btn" id="simon-green" onclick="clickSimon(2)"></div>
+                <div class="simon-btn" id="simon-yellow" onclick="clickSimon(3)"></div>
+            </div>
+            <p id="simon-status" style="font-weight:bold; min-height: 20px;"></p>
+        </div>
+
+        <div id="level-3" class="level-panel">
+            <h2>Рівень 3: Хрестики-нулики ❌⭕</h2>
+            <p>Ви граєте за "X". Обіграйте ШІ, виставивши 3 хрестики в ряд.</p>
+            <div class="ttt-grid" id="ttt-board">
+                <div class="ttt-cell" onclick="clickTTT(0)"></div>
+                <div class="ttt-cell" onclick="clickTTT(1)"></div>
+                <div class="ttt-cell" onclick="clickTTT(2)"></div>
+                <div class="ttt-cell" onclick="clickTTT(3)"></div>
+                <div class="ttt-cell" onclick="clickTTT(4)"></div>
+                <div class="ttt-cell" onclick="clickTTT(5)"></div>
+                <div class="ttt-cell" onclick="clickTTT(6)"></div>
+                <div class="ttt-cell" onclick="clickTTT(7)"></div>
+                <div class="ttt-cell" onclick="clickTTT(8)"></div>
+            </div>
+            <button onclick="resetTTT()">Очистити поле</button>
+        </div>
+
+        <div id="level-4" class="level-panel">
+            <h2>Рівень 4: Спіймай торт 🎂</h2>
+            <p>Встигніть клікнути по тортику, коли він з'являється! Наберіть 6 балів.</p>
+            <p style="font-weight:bold; margin-bottom: 5px;">Рахунок: <span id="cake-score">0</span> / 6</p>
+            <div class="cake-field">
+                <div class="cake-hole"><div class="cake-actor" onclick="scoreCake()">🎂</div></div>
+                <div class="cake-hole"><div class="cake-actor" onclick="scoreCake()">🎂</div></div>
+                <div class="cake-hole"><div class="cake-actor" onclick="scoreCake()">🎂</div></div>
+                <div class="cake-hole"><div class="cake-actor" onclick="scoreCake()">🎂</div></div>
+                <div class="cake-hole"><div class="cake-actor" onclick="scoreCake()">🎂</div></div>
+                <div class="cake-hole"><div class="cake-actor" onclick="scoreCake()">🎂</div></div>
+            </div>
+        </div>
+
+        <div id="level-5" class="level-panel">
+            <h2>Рівень 5: Повітряні кульки 🎈</h2>
+            <p>Кульки летять вгору! Знайдіть та лусніть <b>рожеву кульку</b> із золотим квитком.</p>
+            <div class="balloon-sky" id="balloon-sky-zone"></div>
+        </div>
+
+        <div id="level-6" class="level-panel">
+            <h2>Рівень 6: Лови подарунки 🎁</h2>
+            <p>Керуйте платформою кнопками внизу. Зловіть 5 рожевих подарунків.</p>
+            <p style="font-weight:bold; margin-bottom: 5px;">Зловлено: <span id="gift-score">0</span> / 5</p>
+            <div class="catch-area" id="catch-zone">
+                <div id="basket"></div>
+            </div>
+            <div class="catch-controls">
+                <button onclick="moveBasket(-25)">◀ Ліворуч</button>
+                <button onclick="moveBasket(25)">Праворуч ▶</button>
+            </div>
+        </div>
+
+        <div id="level-7" class="level-panel">
+            <h2>Рівень 7: Знайди святкову пару 👑</h2>
+            <p>Знайдіть та відкрийте всі 8 пар однаковісіньких картинок!</p>
+            <div class="memory-grid" id="mem-grid-box"></div>
+        </div>
+
+        <div id="level-8" class="level-panel">
+            <h2>Рівень 8: Святковий Лабіринт 🧭</h2>
+            <p>Доведіть зелений круг до фіолетової зони фінішу за допомогою кнопок.</p>
+            <div class="maze-container" id="maze-box"></div>
+            
+            <div class="dpad-container">
+                <div></div><button class="dpad-btn" onclick="moveMaze('U')">▲</button><div></div>
+                <button class="dpad-btn" onclick="moveMaze('L')">◀</button><div></div><button class="dpad-btn" onclick="moveMaze('R')">▶</button>
+                <div></div><button class="dpad-btn" onclick="moveMaze('D')">▼</button><div></div>
+            </div>
+        </div>
+
+        <div id="level-9" class="level-panel">
+            <h2>Рівень 9: Екзотичне Слово 🦎</h2>
+            <p>Зберіть назву дивовижної великої ящірки, клікаючи по літерах по порядку:</p>
+            <p style="font-size: 1.3rem; font-weight:bold; color: var(--accent);" id="word-current">_ _ _ _ _ _</p>
+            <div class="letters-pool" id="letters-box"></div>
+            <button onclick="resetWord()">Скинути</button>
+        </div>
+
+        <div id="level-10" class="level-panel">
+            <h2>Рівень 10: Святкова Вікторина 📝</h2>
+            <p>Який традиційний десерт є головним символом святкування Дня Народження?</p>
+            <button class="quiz-option" onclick="wrongAns(10)">А) Морозиво з сиропом</button>
+            <button class="quiz-option" onclick="nextLevel()">Б) Торт зі свічками 🎂</button>
+            <button class="quiz-option" onclick="wrongAns(10)">В) Шоколадний кекс</button>
+            <button class="quiz-option" onclick="wrongAns(10)">Г) Яблучний пиріг</button>
+            <p id="err-10" style="color:red;"></p>
+        </div>
+
+        <div id="level-11" class="level-panel">
+            <h2>Рівень 11: Святковий Математичний Пазл 🧮</h2>
+            <p style="font-size:1.1rem; font-weight:bold; color:#2c3e50;">Скільки разом коштує:<br>3 тортики 🎂 + 2 кульки 🎈?</p>
+            
+            <div class="math-legend">
+                📌 Підказка-цінник:<br>
+                1 Тортик 🎂 = 5 грн.<br>
+                1 Кулька 🎈 = 10 грн.
+            </div>
+
+            <input type="number" id="input-l11" placeholder="Введіть підсумкову суму">
+            <br>
+            <button onclick="checkLevel11()">Перевірити</button>
+            <p id="err-11" style="color:red; margin-top:5px;"></p>
+        </div>
+
+        <div id="level-12" class="level-panel">
+            <h2>Рівень 12: Надуй Кульку 🎈💥</h2>
+            <p>Клікай на кнопку, щоб сильно надути кульку, пока вона не лусне!</p>
+            <div class="pump-balloon" id="pumping-b"></div>
+            <button class="btn-accent" onclick="pumpAction()">Надути! 💨</button>
+        </div>
+
+        <div id="level-13" class="level-panel">
+            <h2>Рівень 13: Святкова Блискавична Реакція ⚡🎈</h2>
+            <p>Будь напоготові! Коли коло стане зеленим і з'явиться напис <b>"ЛУСНИ КУЛЬКУ!"</b>, миттєво тини на нього!</p>
+            <div class="click-target" id="speed-target" onclick="clickSpeedTarget()">ЗАЧЕКАЙТЕ</div>
+            <p id="speed-status" style="color:red; font-weight:bold; margin-top:10px;"></p>
+        </div>
+
+        <div id="level-14" class="level-panel">
+            <h2>Рівень 14: Святковий Код 🔓</h2>
+            <p>Введіть слово <b>"СВЯТО"</b> великими літерами навпаки (задом наперед):</p>
+            <input type="text" id="input-l14" placeholder="ОТ...">
+            <br>
+            <button onclick="checkLevel14()">Перевірити</button>
+        </div>
+
+        <div id="level-15" class="level-panel">
+            <h2>Рівень 15: Тінь Тварини</h2>
+            <p>Вгадайте, яка тварина загадана?</p>
+            <div class="animal-shadow-container">
+                <svg viewBox="0 0 64 64">
+                    <path d="M36,4 C30,4 25,8 24,14 C22,13 18,15 17,18 C16,21 19,23 21,23 C20,27 21,32 23,36 C21,42 16,48 12,52 C15,53 19,51 22,46 C24,49 27,51 31,51 C38,51 43,44 44,36 C47,34 50,30 52,24 C54,18 50,12 45,11 C44,7 40,4 36,4 Z M30,12 C31.6,12 33,13.4 33,15 C33,16.6 31.6,18 30,18 C28.4,18 27,16.6 27,15 C27,13.4 28.4,12 30,12 Z"/>
+                </svg>
+            </div>
+            <button class="shadow-option" onclick="nextLevel()">А) Папуга</button>
+            <button class="shadow-option" onclick="wrongAns(15)">Б) Голуб</button>
+            <button class="shadow-option" onclick="wrongAns(15)">В) Орел</button>
+            <button class="shadow-option" onclick="wrongAns(15)">Г) Крокодил</button>
+            <p id="err-15" style="color:red; font-weight:bold;"></p>
+        </div>
+
+        <div id="level-16" class="level-panel">
+            <h2>Рівень 16: Тінь Тварини</h2>
+            <p>Вгадайте тварину за її силуетом:</p>
+            <div class="animal-shadow-container">
+                <svg viewBox="0 0 64 64">
+                    <path d="M48,12 L53,2 L45,7 C41,4 35,4 32,4 C29,4 23,4 19,7 L11,2 L16,12 C10,18 8,26 10,34 C12,44 20,52 32,52 C44,52 52,44 54,34 C56,26 54,18 48,12 Z M22,24 C24,24 26,26 26,28 C26,30 24,32 22,32 C20,32 18,30 18,28 C18,26 20,24 22,24 Z M42,24 C44,24 46,26 46,28 C46,30 44,32 42,32 C40,32 38,30 38,28 C38,26 40,24 42,24 Z"/>
+                </svg>
+            </div>
+            <button class="shadow-option" onclick="wrongAns(16)">А) Тигр</button>
+            <button class="shadow-option" onclick="wrongAns(16)">Б) Собака</button>
+            <button class="shadow-option" onclick="nextLevel()">В) Кіт</button>
+            <button class="shadow-option" onclick="wrongAns(16)">Г) Лисиця</button>
+            <p id="err-16" style="color:red; font-weight:bold;"></p>
+        </div>
+
+        <div id="level-17" class="level-panel">
+            <h2>Рівень 17: Тінь Тварини</h2>
+            <p>Яка тварина сховалася в тіні?</p>
+            <div class="animal-shadow-container">
+                <svg viewBox="0 0 64 64">
+                    <path d="M32,10 C18,10 10,18 10,30 C10,38 14,44 20,48 L17,58 L25,52 C27,53 30,54 32,54 C34,54 37,53 39,52 L47,58 L44,48 C50,44 54,38 54,30 C54,18 46,10 32,10 Z M32,4 C35,4 37,7 37,10 L27,10 C27,7 29,4 32,4 Z"/>
+                </svg>
+            </div>
+            <button class="shadow-option" onclick="wrongAns(17)">А) Равлик</button>
+            <button class="shadow-option" onclick="nextLevel()">Б) Черепаха</button>
+            <button class="shadow-option" onclick="wrongAns(17)">В) Жаба</button>
+            <button class="shadow-option" onclick="wrongAns(17)">Г) Ящірка</button>
+            <p id="err-17" style="color:red; font-weight:bold;"></p>
+        </div>
+
+        <div id="level-18" class="level-panel">
+            <h2>Рівень 18: Тінь Тварини</h2>
+            <p>Визначте фінальну тварину:</p>
+            <div class="animal-shadow-container">
+                <svg viewBox="0 0 64 64">
+                    <path d="M60,26 C52,24 40,28 32,22 C28,14 26,4 22,4 C22,10 24,18 20,24 C14,26 6,28 2,30 C8,34 16,34 20,38 C18,46 16,56 22,60 C24,52 26,44 32,42 C40,42 54,34 60,26 Z"/>
+                </svg>
+            </div>
+            <button class="shadow-option" onclick="wrongAns(18)">А) Дельфін</button>
+            <button class="shadow-option" onclick="wrongAns(18)">Б) Кит</button>
+            <button class="shadow-option" onclick="wrongAns(18)">В) Восьминіг</button>
+            <button class="shadow-option" onclick="nextLevel()">Г) Акула</button>
+            <p id="err-18" style="color:red; font-weight:bold;"></p>
+        </div>
+
+        <div id="level-19" class="level-panel">
+            <div class="congrats-card">
+                <h2>🎉 З ДНЕМ НАРОДЖЕННЯ! 🎉</h2>
+                <div class="congrats-text">
+                    Вітаю з днем народження! Бажаю щастя, здоров'я і всього найкращого. Нехай усі хвороби обходять тебе стороною, а до тебе магнітиться тільки удача. З днем народження! (далі буде завдання яке зараз виповнити ти не зможеш так що треба зберегти процес і ти повинен бути на сторожі наступні 2 дні коли ми побачимося так як я тайком дам код від наступного завдання)
+                </div>
+                <button class="btn-accent" style="font-size:1rem; padding:12px 24px;" onclick="goToLevel20()">Зберегти і продовжити</button>
+            </div>
+        </div>
+
+        <div id="level-20" class="level-panel">
+            <h2>Рівень 20: Фінальний Мега Сейф 🌟</h2>
+            <p>Введіть отримані секретні дані, щоб отримати фінальний код квесту:</p>
+            
+            <div class="safe-inputs-container">
+                <input type="number" id="final-password" placeholder="Цифровий код">
+                <input type="text" id="final-word" placeholder="Буквений код">
+            </div>
+            
+            <button class="btn-accent" style="width: 90%; max-width: 380px; margin-bottom: 5px;" onclick="unlockFinalSafe()">ВІДКРИТИ СЕЙФ 🔓</button>
+            <p id="final-err" style="color:red; font-weight: bold; min-height: 20px; font-size: 0.9rem;"></p>
+
+            <div class="safe-graphic-box">
+                <div class="safe-door" id="main-safe-door">СЕЙФ ЗАБЛОКОВАНО</div>
+                <div class="safe-inside-data" id="secret-text">Apklj54687</div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        let currentLevel = 1;
+        const totalLevels = 20;
+        const storageKey = 'birthdayQuestLevel';
+
+        // Авто-завантаження стану при запусків сторінки
+        window.addEventListener('DOMContentLoaded', () => {
+            loadProgress();
+        });
+
+        function updateProgress() {
+            document.getElementById('progress-bar').innerText = `Рівень ${currentLevel} з ${totalLevels}`;
+        }
+
+        // Функція збереження прогресу в LocalStorage
+        function saveProgress() {
+            localStorage.setItem(storageKey, currentLevel);
+        }
+
+        // Функція завантаження прогресу
+        function loadProgress() {
+            const savedLevel = localStorage.getItem(storageKey);
+            if (savedLevel) {
+                let parsedLevel = parseInt(savedLevel, 10);
+                if (parsedLevel >= 1 && parsedLevel <= totalLevels) {
+                    document.getElementById(`level-${currentLevel}`).classList.remove('active');
+                    currentLevel = parsedLevel;
+                    document.getElementById(`level-${currentLevel}`).classList.add('active');
+                    updateProgress();
+                    initLevelFeatures();
+                    
+                    // Якщо перезавантажили на 19 рівні, запустити конфеті заново
+                    if (currentLevel === 19) {
+                        startConfettiAnimation();
+                    }
+                }
+            } else {
+                updateProgress();
+            }
+        }
+
+        // Функція повної реініціалізації / Скидання квесту
+        function resetEntireQuest() {
+            if (confirm("Ви впевнені, що хочете скинути весь прогрес і почати квест з 1-го рівня?")) {
+                localStorage.removeItem(storageKey);
+                document.getElementById(`level-${currentLevel}`).classList.remove('active');
+                currentLevel = 1;
+                document.getElementById(`level-${currentLevel}`).classList.add('active');
+                updateProgress();
+                
+                // Очищення та зупинка можливих запущених станів
+                document.getElementById('canvas-confetti').style.display = 'none';
+                resetTTT();
+                if(document.getElementById('input-l1')) document.getElementById('input-l1').value = "";
+                if(document.getElementById('input-l11')) document.getElementById('input-l11').value = "";
+                if(document.getElementById('input-l14')) document.getElementById('input-l14').value = "";
+                if(document.getElementById('final-password')) document.getElementById('final-password').value = "";
+                if(document.getElementById('final-word')) document.getElementById('final-word').value = "";
+                
+                const door = document.getElementById('main-safe-door');
+                if (door) {
+                    door.classList.remove('open');
+                    door.innerText = "СЕЙФ ЗАБЛОКОВАНО";
+                }
+                
+                initLevelFeatures();
+            }
+        }
+
+        function nextLevel() {
+            document.getElementById(`level-${currentLevel}`).classList.remove('active');
+            currentLevel++;
+            if(currentLevel <= totalLevels) {
+                document.getElementById(`level-${currentLevel}`).classList.add('active');
+                updateProgress();
+                saveProgress(); // Автозбереження рівня
+                initLevelFeatures();
+            }
+        }
+
+        function wrongAns(lvl) {
+            const err = document.getElementById(`err-${lvl}`);
+            if(err) err.innerText = "Неправильно! Спробуйте ще раз.";
+        }
+
+        function initLevelFeatures() {
+            if (currentLevel === 4) initLevel4();
+            if (currentLevel === 5) initLevel5();
+            if (currentLevel === 6) initLevel6();
+            if (currentLevel === 7) initLevel7();
+            if (currentLevel === 8) initLevel8();
+            if (currentLevel === 9) initLevel9();
+            if (currentLevel === 13) initLevel13();
+        }
+
+        // Рівень 1
+        function checkLevel1() {
+            const val = document.getElementById('input-l1').value.trim();
+            if(val === "28,05" || val === "28.05") {
+                nextLevel();
+            } else {
+                document.getElementById('hint-1').innerText = "Неправильний пароль.";
+            }
+        }
+        function showHint(lvl) {
+            if(lvl === 1) document.getElementById('hint-1').innerText = "А коли в тебе день народження?)";
+        }
+
+        // Рівень 2: Simon Says
+        let simonSequence = [];
+        let userSequence = [];
+        let simonColors = ['simon-red', 'simon-blue', 'simon-green', 'simon-yellow'];
+        let isWaitingInput = false;
+
+        function startSimon() {
+            simonSequence = [Math.floor(Math.random()*4), Math.floor(Math.random()*4), Math.floor(Math.random()*4)];
+            userSequence = [];
+            document.getElementById('simon-status').innerText = "Запам'ятовуйте...";
+            playSimonSequence();
+        }
+
+        function playSimonSequence() {
+            isWaitingInput = false;
+            let i = 0;
+            let interval = setInterval(() => {
+                flashSimonBtn(simonSequence[i]);
+                i++;
+                if(i >= simonSequence.length) {
+                    clearInterval(interval);
+                    isWaitingInput = true;
+                    document.getElementById('simon-status').innerText = "Повторюйте!";
+                }
+            }, 600);
+        }
+
+        function flashSimonBtn(index) {
+            const btn = document.getElementById(simonColors[index]);
+            btn.style.opacity = "1";
+            setTimeout(() => { btn.style.opacity = "0.6"; }, 300);
+        }
+
+        function clickSimon(colorIndex) {
+            if(!isWaitingInput) return;
+            flashSimonBtn(colorIndex);
+            userSequence.push(colorIndex);
+
+            if(userSequence[userSequence.length - 1] !== simonSequence[userSequence.length - 1]) {
+                document.getElementById('simon-status').innerText = "Помилка! Спробуйте спочатку.";
+                isWaitingInput = false;
+                return;
+            }
+
+            if(userSequence.length === simonSequence.length) {
+                document.getElementById('simon-status').innerText = "Супер! Перехід.";
+                setTimeout(() => { nextLevel(); }, 500);
+            }
+        }
+
+        // Рівень 3: Хрестики-нулики
+        let tttBoard = ["", "", "", "", "", "", "", "", ""];
+        function clickTTT(index) {
+            if(tttBoard[index] !== "") return;
+            tttBoard[index] = "X";
+            renderTTT();
+            if(checkTTTWin("X")) {
+                setTimeout(() => { nextLevel(); }, 400);
+                return;
+            }
+            if(!tttBoard.includes("")) return;
+            
+            let emptyCells = [];
+            for(let i=0; i<9; i++) if(tttBoard[i]==="") emptyCells.push(i);
+            if(emptyCells.length > 0) {
+                let aiChoice = emptyCells[Math.floor(Math.random()*emptyCells.length)];
+                tttBoard[aiChoice] = "O";
+                renderTTT();
+                if(checkTTTWin("O")) {
+                    alert("ШІ переміг! Спробуйте знову.");
+                    resetTTT();
+                }
+            }
+        }
+        function renderTTT() {
+            const cells = document.querySelectorAll('.ttt-cell');
+            cells.forEach((cell, i) => { cell.innerText = tttBoard[i]; });
+        }
+        function resetTTT() {
+            tttBoard = ["", "", "", "", "", "", "", "", ""];
+            renderTTT();
+        }
+        function checkTTTWin(p) {
+            const w = [[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+            return w.some(comb => comb.every(i => tttBoard[i] === p));
+        }
+
+        // Рівень 4: Спіймай торт
+        let cakeScore = 0;
+        let cakeInterval;
+        function initLevel4() {
+            cakeScore = 0;
+            document.getElementById('cake-score').innerText = cakeScore;
+            const actors = document.querySelectorAll('.cake-actor');
+            if(cakeInterval) clearInterval(cakeInterval);
+            cakeInterval = setInterval(() => {
+                actors.forEach(a => a.classList.remove('up'));
+                let rand = Math.floor(Math.random()*actors.length);
+                actors[rand].classList.add('up');
+            }, 900);
+        }
+        function scoreCake() {
+            cakeScore++;
+            document.getElementById('cake-score').innerText = cakeScore;
+            if(cakeScore >= 6) {
+                clearInterval(cakeInterval);
+                nextLevel();
+            }
+        }
+
+        // Рівень 5: Повітряні кульки
+        function initLevel5() {
+            const sky = document.getElementById('balloon-sky-zone');
+            sky.innerHTML = "";
+            createSkyBalloon('🎈', true, sky);
+            for(let i=0; i<4; i++) {
+                createSkyBalloon('🎈', false, sky);
+            }
+        }
+        function createSkyBalloon(emoji, isTarget, container) {
+            let b = document.createElement('div');
+            b.className = "sky-balloon";
+            b.innerText = emoji;
+            b.style.left = Math.random() * 75 + 5 + "%";
+            b.style.animationDelay = Math.random() * 2.5 + "s";
+            if(isTarget) {
+                b.style.filter = "hue-rotate(150deg)";
+                b.onclick = () => { nextLevel(); };
+            } else {
+                b.onclick = () => { b.style.display = 'none'; };
+            }
+            container.appendChild(b);
+        }
+
+        // Рівень 6: Лови подарунки
+        let giftScore = 0;
+        let basketX = 50;
+        let giftInterval;
+        function initLevel6() {
+            giftScore = 0;
+            document.getElementById('gift-score').innerText = giftScore;
+            if(giftInterval) clearInterval(giftInterval);
+            giftInterval = setInterval(dropGift, 1400);
+        }
+        function moveBasket(dir) {
+            basketX += dir;
+            if(basketX < 12) basketX = 12;
+            if(basketX > 88) basketX = 88;
+            document.getElementById('basket').style.left = basketX + "%";
+        }
+        function dropGift() {
+            if (currentLevel !== 6) { clearInterval(giftInterval); return; }
+            let zone = document.getElementById('catch-zone');
+            if (!zone) return;
+            let gift = document.createElement('div');
+            gift.className = "falling-gift";
+            let gx = Math.random() * 85;
+            gift.style.left = gx + "%";
+            zone.appendChild(gift);
+
+            let gy = 0;
+            let fall = setInterval(() => {
+                gy += 4;
+                gift.style.top = gy + "px";
+                if(gy > 185) {
+                    clearInterval(fall);
+                    if(Math.abs(gx - basketX) < 16) {
+                        giftScore++;
+                        document.getElementById('gift-score').innerText = giftScore;
+                        if(giftScore >= 5) {
+                            clearInterval(giftInterval);
+                            nextLevel();
+                        }
+                    }
+                    gift.remove();
+                }
+            }, 30);
+        }
+
+        // Рівень 7: Картки пам'яті
+        let memIcons = ['🎂','🎂','🎈','🎈','🎁','🎁','🍰','🍰','🎉','🎉','🍾','🍾','🎆','🎆','👑','👑'];
+        let firstCard = null;
+        let secondCard = null;
+        let lockMem = false;
+        let pairsFound = 0;
+
+        function initLevel7() {
+            firstCard = null;
+            secondCard = null;
+            lockMem = false;
+            pairsFound = 0;
+            
+            memIcons.sort(() => Math.random() - 0.5);
+            const box = document.getElementById('mem-grid-box');
+            box.innerHTML = "";
+            
+            memIcons.forEach((icon, index) => {
+                let card = document.createElement('div');
+                card.className = "mem-card";
+                card.dataset.icon = icon;
+                card.dataset.index = index;
+                card.innerText = "?";
+                card.onclick = () => clickMemCard(card);
+                box.appendChild(card);
+            });
+        }
+
+        function clickMemCard(card) {
+            if(lockMem) return;
+            if(card.classList.contains('flipped') || card.classList.contains('matched')) return;
+            
+            card.classList.add('flipped');
+            card.innerText = card.dataset.icon;
+            
+            if(!firstCard) {
+                firstCard = card;
+            } else {
+                if(firstCard.dataset.index === card.dataset.index) return;
+                
+                secondCard = card;
+                lockMem = true;
+                
+                if(firstCard.dataset.icon === secondCard.dataset.icon) {
+                    firstCard.classList.add('matched');
+                    secondCard.classList.add('matched');
+                    pairsFound++;
+                    
+                    firstCard = null; 
+                    secondCard = null; 
+                    lockMem = false;
+                    
+                    if(pairsFound === 8) {
+                        setTimeout(() => { nextLevel(); }, 500);
+                    }
+                } else {
+                    setTimeout(() => {
+                        firstCard.classList.remove('flipped');
+                        secondCard.classList.remove('flipped');
+                        firstCard.innerText = "?";
+                        secondCard.innerText = "?";
+                        
+                        firstCard = null; 
+                        secondCard = null; 
+                        lockMem = false;
+                    }, 900);
+                }
+            }
+        }
+
+        // Рівень 8: Лабіринт
+        let mazeLayout = [
+            [0,1,0,0,0],
+            [0,1,0,1,0],
+            [0,0,0,1,0],
+            [1,1,0,1,0],
+            [0,0,0,1,2]
+        ];
+        let playerPos = {x: 0, y: 0};
+        function initLevel8() {
+            playerPos = {x: 0, y: 0};
+            renderMaze();
+        }
+        function renderMaze() {
+            const box = document.getElementById('maze-box');
+            box.innerHTML = "";
+            for(let r=0; r<5; r++){
+                for(let c=0; c<5; c++){
+                    let cell = document.createElement('div');
+                    cell.className = "maze-cell";
+                    if(mazeLayout[r][c] === 1) cell.classList.add('maze-wall');
+                    if(mazeLayout[r][c] === 2) cell.classList.add('maze-target');
+                    if(playerPos.x === c && playerPos.y === r) cell.classList.add('maze-player');
+                    box.appendChild(cell);
+                }
+            }
+        }
+        function moveMaze(dir) {
+            let nx = playerPos.x;
+            let ny = playerPos.y;
+            if(dir === 'L') nx--;
+            if(dir === 'R') nx++;
+            if(dir === 'U') ny--;
+            if(dir === 'D') ny++;
+
+            if(nx >= 0 && nx < 5 && ny >= 0 && ny < 5) {
+                if(mazeLayout[ny][nx] !== 1) {
+                    playerPos.x = nx;
+                    playerPos.y = ny;
+                    renderMaze();
+                    if(mazeLayout[ny][nx] === 2) {
+                        nextLevel();
+                    }
+                }
+            }
+        }
+
+        // Рівень 9: Склади слово
+        let targetWord = ["І", "Г", "У", "А", "Н", "А"];
+        let userWord = [];
+        function initLevel9() {
+            resetWord();
+        }
+        function resetWord() {
+            userWord = [];
+            document.getElementById('word-current').innerText = "_ _ _ _ _ _";
+            const box = document.getElementById('letters-box');
+            box.innerHTML = "";
+            let pool = ["А", "І", "Н", "У", "Г", "А"]; 
+            pool.sort(() => Math.random() - 0.5);
+            pool.forEach(l => {
+                let tile = document.createElement('div');
+                tile.className = "letter-tile";
+                tile.innerText = l;
+                tile.onclick = () => {
+                    tile.classList.add('used');
+                    userWord.push(l);
+                    buildWordString();
+                };
+                box.appendChild(tile);
+            });
+        }
+        function buildWordString() {
+            let str = "";
+            for(let i=0; i<6; i++) {
+                str += (userWord[i] ? userWord[i] : "_") + " ";
+            }
+            document.getElementById('word-current').innerText = str;
+            
+            let isCorrectSoFar = true;
+            for(let i=0; i<userWord.length; i++) {
+                if(userWord[i] !== targetWord[i]) isCorrectSoFar = false;
+            }
+            if(!isCorrectSoFar) {
+                alert("Помилка у порядку літер! Почнемо спочатку.");
+                resetWord();
+                return;
+            }
+            if(userWord.length === 6) {
+                setTimeout(() => { nextLevel(); }, 400);
+            }
+        }
+
+        // Рівень 11: Математика
+        function checkLevel11() {
+            const answerInput = document.getElementById('input-l11');
+            const errField = document.getElementById('err-11');
+            
+            if(answerInput.value.trim() === "35") {
+                errField.innerText = "";
+                nextLevel();
+            } else {
+                errField.innerText = "Рахунок хибний! Перевірте математику ще раз.";
+            }
+        }
+
+        // Рівень 12: Надуй кульку
+        let balloonSize = 55;
+        function pumpAction() {
+            balloonSize += 15;
+            const b = document.getElementById('pumping-b');
+            b.style.width = balloonSize + "px";
+            b.style.height = balloonSize + "px";
+            if(balloonSize > 160) {
+                b.style.backgroundColor = "transparent";
+                b.innerText = "💥";
+                b.style.fontSize = "2.8rem";
+                setTimeout(() => { 
+                    balloonSize = 55; // Скинути для майбутнього
+                    nextLevel(); 
+                }, 500);
+            }
+        }
+
+        // РІВЕНЬ 13: Гра на швидкість реакції
+        let speedReady = false;
+        let speedTimeout;
+        function initLevel13() {
+            const target = document.getElementById('speed-target');
+            const status = document.getElementById('speed-status');
+            target.style.backgroundColor = "#5f27cd";
+            target.innerText = "ЗАЧЕКАЙТЕ";
+            status.innerText = "";
+            speedReady = false;
+            
+            let randTime = Math.random() * 2000 + 2000; 
+            if(speedTimeout) clearTimeout(speedTimeout);
+            speedTimeout = setTimeout(() => {
+                speedReady = true;
+                target.style.backgroundColor = "#2ecc71";
+                target.innerText = "ЛУСНИ!";
+            }, randTime);
+        }
+        function clickSpeedTarget() {
+            if(speedReady) {
+                clearTimeout(speedTimeout);
+                nextLevel(); 
+            } else {
+                clearTimeout(speedTimeout);
+                document.getElementById('speed-status').innerText = "Занадто рано! Перезапуск...";
+                initLevel13();
+            }
+        }
+
+        // Рівень 14
+        function checkLevel14() {
+            if(document.getElementById('input-l14').value.trim().toUpperCase() === "ОТЯВС") {
+                nextLevel();
+            } else alert("Ні, спробуй ще.");
+        }
+
+        // Перехід до рівня 20 та вимкнення конфеті
+        function goToLevel20() {
+            document.getElementById('canvas-confetti').style.display = 'none';
+            nativeNextLevel(); 
+        }
+
+        // Перехоплення переходу для запуску конфеті та збереження стану
+        const nativeNextLevel = nextLevel;
+        nextLevel = function() {
+            if (currentLevel === 18) {
+                startConfettiAnimation();
+            }
+            nativeNextLevel();
+        }
+
+        // Рівень 20: Валідація та анімація сейфа
+        function unlockFinalSafe() {
+            const pass = document.getElementById('final-password').value.trim();
+            const word = document.getElementById('final-word').value.trim();
+            
+            if(pass === "8882" && word === "Хрещений") {
+                document.getElementById('final-err').innerText = "";
+                
+                const door = document.getElementById('main-safe-door');
+                door.classList.add('open');
+                door.innerText = "ВІДКРИТО";
+            } else {
+                document.getElementById('final-err').innerText = "Неправильні секретні дані! Доступ заблоковано.";
+            }
+        }
+
+        // --- СИСТЕМА КОНФЕТІ ---
+        const canvas = document.getElementById('canvas-confetti');
+        const ctx = canvas.getContext('2d');
+        let confettiParticles = [];
+
+        function startConfettiAnimation() {
+            canvas.style.display = 'block';
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+            confettiParticles = [];
+            for (let i = 0; i < 100; i++) {
+                confettiParticles.push({
+                    x: Math.random() * canvas.width,
+                    y: Math.random() * canvas.height - canvas.height,
+                    r: Math.random() * 5 + 4,
+                    d: Math.random() * canvas.height,
+                    color: `rgba(${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, ${Math.floor(Math.random()*255)}, 1)`,
+                    tilt: Math.random() * 10 - 5,
+                    tiltAngleIncremental: Math.random() * 0.06 + 0.02,
+                    tiltAngle: 0
+                });
+            }
+            requestAnimationFrame(updateConfetti);
+        }
+
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+        }
+
+        function updateConfetti() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            for (let i = 0; i < confettiParticles.length; i++) {
+                let p = confettiParticles[i];
+                p.y += Math.cos(p.d) + 1 + p.r / 2;
+                p.tiltAngle += p.tiltAngleIncremental;
+                p.x += Math.sin(p.tiltAngle - 0.5);
+                p.tilt = Math.sin(p.tiltAngle - 0.5) * 12;
+
+                if (p.y > canvas.height) {
+                    p.x = Math.random() * canvas.width;
+                    p.y = -20;
+                }
+
+                ctx.beginPath();
+                ctx.lineWidth = p.r;
+                ctx.strokeStyle = p.color;
+                ctx.moveTo(p.x + p.tilt + p.r / 2, p.y);
+                ctx.lineTo(p.x + p.tilt, p.y + p.tilt + p.r / 2);
+                ctx.stroke();
+            }
+            if(currentLevel === 19) {
+                requestAnimationFrame(updateConfetti);
+            } else {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+            }
+        }
+    </script>
+</body>
+</html>
